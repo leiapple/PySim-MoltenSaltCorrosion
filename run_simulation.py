@@ -6,18 +6,17 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 from ase import Atom, Atoms, units
-from ase.build import add_adsorbate, bulk, fcc100, fcc110, fcc111, molecule, stack
+from ase.build import bulk, fcc100, fcc110, fcc111, molecule
 from ase.constraints import FixAtoms
 from ase.data import atomic_masses, atomic_numbers
-from ase.filters import FrechetCellFilter, StrainFilter
+from ase.filters import StrainFilter
 from ase.geometry import get_distances
-from ase.io import Trajectory, read, write
+from ase.io import Trajectory, write
 from ase.md import MDLogger
 from ase.md.langevin import Langevin
 from ase.md.nptberendsen import Inhomogeneous_NPTBerendsen, NPTBerendsen
 from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
-from ase.optimize import BFGS, FIRE, LBFGS
-from ase.visualize import view
+from ase.optimize import BFGS, LBFGS
 from fairchem.core import FAIRChemCalculator, pretrained_mlip
 from scipy.spatial.distance import cdist
 
@@ -66,10 +65,10 @@ class SimulationConfig:
     salt_anions: List = field(default_factory=lambda: [["Cl"], [216]])
 
     impurity: str = "oxygen"  # "oxygen", "water", "none"
-    n_O2: int = field(init=False, default=0)  # Only applies if impurity is "oxygen"
+    n_O2: int = field(default=40)  # Only applies if impurity is "oxygen"
     # Number of O atoms add to the top layer to prevent O2 in the salt adsorption on the top of simulation cell
-    n_O_top: int = field(init=False, default=0)  # Only applies if impurity is "oxygen"
-    n_H2O: int = field(init=False, default=0)  # Only applies if impurity is "water"
+    n_O_top: int = field(default=50)  # Only applies if impurity is "oxygen"
+    n_H2O: int = field(default=40)  # Only applies if impurity is "water"
     # Height of the oxygen layer on top of the simulation cell
     oxygen_top_height: float = 2.5  # Å, only applies if impurity is "oxygen"
 
@@ -156,17 +155,6 @@ class SimulationConfig:
             self.alloy_size = (8, 10, 12)
         else:
             raise ValueError("Unsupported alloy surface")
-
-        # Impurity setup
-        if self.impurity == "oxygen":
-            self.n_O2 = 40  # molecules
-            self.n_O_top = 50  # atoms
-        elif self.impurity == "water":
-            self.n_H2O = 40  # molecules
-        elif self.impurity == "none":
-            pass
-        else:
-            raise ValueError("Invalid impurity type")
 
         # Timestep logic
         if self.impurity == "water":
