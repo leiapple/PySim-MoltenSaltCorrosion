@@ -13,6 +13,10 @@ The simulation workflow includes alloy preparation, molten salt generation, impu
 
 This repository contains the source code for the simulations reported in [TODO REF](doi.org/TODO).
 
+Other information:
+- Folder `Scirpts` contains the simulation parameters used in the paper.
+- Folder `Postprocessing` contains the code used to extract information from the ase trajectory files.
+
 ## Installation
 
 ```bash
