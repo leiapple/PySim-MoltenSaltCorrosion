@@ -1,10 +1,10 @@
 # ============================================================
-# Test run_calc_O2.py with minimal configuration so it can be run on a laptop
+# Test run_simulation.py with minimal configuration so it can be run on a laptop
 # ============================================================
 import sys
 
 sys.path.append("..")
-from run_calc_O2 import (
+from run_simulation import (
     SimulationConfig,
     add_impurities,
     add_oxygen_top,
