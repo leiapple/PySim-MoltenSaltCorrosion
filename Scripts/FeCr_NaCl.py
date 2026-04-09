@@ -1,3 +1,6 @@
+import sys
+sys.path.append("..")
+
 from run_simulation import *
 
 set_seed(42)

@@ -14,7 +14,7 @@ The simulation workflow includes alloy preparation, molten salt generation, impu
 This repository contains the source code for the simulations reported in [TODO REF](doi.org/TODO).
 
 Other information:
-- Folder `Scirpts` contains the simulation parameters used in the paper.
+- Folder `Scripts` contains the simulation parameters used in the paper.
 - Folder `Postprocessing` contains the code used to extract information from the ase trajectory files.
 
 ## Installation
@@ -32,6 +32,8 @@ python run_simulation.py
 ```
 
 ### 2. Custom simulation (example)
+
+Should be run from the folder containing the `run_simulation.py` file.
 
 ```python
 from run_simulation import *
@@ -59,7 +61,7 @@ system = nvt_simulation(system, config)
 ### 3. Salt-only simulation (NPT)
 
 ```python
-from run_calc_O2 import *
+from run_simulation import *
 
 set_seed(42)
 
