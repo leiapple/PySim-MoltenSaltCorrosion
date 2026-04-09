@@ -90,4 +90,4 @@ All parameters are controlled via `SimulationConfig`, including:
 
 ## License
 
-The code in this repository is licensed under the TODO license.
+The code in this repository is licensed under the MIT license.
