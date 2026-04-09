@@ -88,7 +88,7 @@ All parameters are controlled via `SimulationConfig`, including:
 
 ## Notes
 
-- GPU recommended. An NVT simulation of the full salt+alloy system for 200 ps takes ~4 days on a single TODO GPU
+- GPU recommended. An NVT simulation of the full salt+alloy system with timestep 1 fs for total simulation of 500 ps takes ~40 hours on a single H100 GPU
 - Water simulations use a smaller timestep (0.2 fs vs. 1.0 fs by default)
 - Simulations are reproducible given a fixed random seed (`set_seed`) and identical software/hardware environment
 
