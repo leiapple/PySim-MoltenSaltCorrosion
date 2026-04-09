@@ -34,22 +34,6 @@ All scripts read **OVITO-compatible trajectory files**, for example:
 
 ---
 
-## Repository layouts
-
-A minimal layout could look like this:
-
-```text
-repo/
-├── README.md
-├── Get_atomic_density.py
-├── Get_OH_analysis.py
-├── Get_surface_area.py
-└── data/
-    └── trajectory files
-```
-
----
-
 ## 1. `Get_atomic_density.py`
 
 ### Purpose
@@ -68,7 +52,7 @@ This script calculates the **areal density of selected elements above a height t
 ### Command-line usage
 
 ```bash
-python Get_atomic_density.py --filename TRAJ_FILE --output OUTPUT_NAME --elem ELEMENT [ELEMENT ...]
+python Get_atomic_density.py --filename TRAJ_FILE --output OUTPUT_NAME --elem ELEMENTS
 ```
 
 ### Arguments
@@ -325,7 +309,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Example: plot dissolved Cr density
-adata = np.load("density_all.npz", allow_pickle=True)
+adata = np.load("NaF_density.npz", allow_pickle=True)
 plt.plot(adata["time"], adata["density_Cr"])
 plt.xlabel("Time")
 plt.ylabel("Areal density of dissolved Cr")
