@@ -391,6 +391,8 @@ def add_impurities(
     elif c.impurity == "water":
         n_impurity = c.n_H2O
         impurity_symbol = "H2O"
+    else:
+        n_impurity = 0
     impurities = []
     for _ in range(n_impurity):
         # Choose a random cation/anion pair from the salt
@@ -650,7 +652,7 @@ def npt_equilibration(
 
 
 # ============================================================
-# NPT Simulation
+# NVT Simulation
 # ============================================================
 
 
