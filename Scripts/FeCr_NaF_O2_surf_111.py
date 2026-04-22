@@ -1,6 +1,7 @@
-from run_simulation import *
+import sys
+sys.path.append("..")
 
-set_seed(42)
+from run_simulation import *
 
 # The other parameters are set to the default values in the SimulationConfig dataclass
 config = SimulationConfig(
@@ -13,6 +14,7 @@ config = SimulationConfig(
     salt_anions=[["F"], [216]],  # salt composition
     impurity="oxygen",
     n_O2=20,
+    seed=41,
 )
 
 alloy = prepare_alloy(c=config)
