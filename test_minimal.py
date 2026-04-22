@@ -4,7 +4,7 @@
 import sys
 
 sys.path.append("..")
-from run_simulation import (
+from CorrosionSimulator import (
     SimulationConfig,
     add_impurities,
     add_oxygen_top,

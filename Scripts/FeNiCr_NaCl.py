@@ -1,8 +1,8 @@
 import sys
+
 sys.path.append("..")
 
-from run_simulation import *
-
+from CorrosionSimulator import *
 
 # The other parameters are set to the default values in the SimulationConfig dataclass
 config = SimulationConfig(
