@@ -24,7 +24,7 @@ from scipy.spatial.distance import cdist
 # ============================================================
 # Global RNG to ensure reproducibility
 # ============================================================
-def set_seed(rng_seed=42):
+def _set_seed(rng_seed=41):
     random.seed(rng_seed)
     np.random.seed(rng_seed)
 
@@ -32,13 +32,15 @@ def set_seed(rng_seed=42):
 # ============================================================
 # Configuration dataclass
 # ============================================================
-
-
 @dataclass
 class SimulationConfig:
     # ---------------------------
     # System parameters with meaningful defaults
     # ---------------------------
+
+    # Seed for the rngs
+    seed: int = field(default=41)
+
     M_composition: Dict[str, float] = field(
         default_factory=lambda: {
             "Fe": 0.46,
@@ -141,6 +143,10 @@ class SimulationConfig:
     # ============================================================
 
     def __post_init__(self):
+
+        # Set the seed of the rngs
+        _set_seed(self.seed)
+
         # Validate composition
         if not np.isclose(sum(self.M_composition.values()), 1.0):
             raise ValueError("M_composition must sum to 1")
@@ -166,10 +172,14 @@ class SimulationConfig:
     def calculator(self) -> FAIRChemCalculator:
         """Lazy-load the calculator if not already initialized."""
         if self._calculator is None:
+            # Get the rng seed before initializing the calculator
+            rng_seed = int(np.random.get_state()[1][0])
             predictor = pretrained_mlip.get_predict_unit(
                 self.model_name, device=self.device
             )
             self._calculator = FAIRChemCalculator(predictor, task_name=self.task_name)
+            # Make sure the seed doesn't get reset by the calculator
+            _set_seed(rng_seed)
         return self._calculator
 
 
@@ -197,7 +207,7 @@ def prepare_alloy(
     opt = BFGS(
         StrainFilter(FCC_bulk, mask=[1, 1, 1, 0, 0, 0])
     )  # Diagonal strain optimization only
-    opt.run(fmax=c.fmax_fe_bulk)
+    # opt.run(fmax=c.fmax_fe_bulk)
     cell = FCC_bulk.get_cell()
     a0 = (cell[0][0] + cell[1][1] + cell[2][2]) / 3  # average over all three
 
@@ -228,7 +238,7 @@ def prepare_alloy(
     # Optimize the bulk for strain / forces
     alloy.calc = c.calculator
     opt1 = LBFGS(StrainFilter(alloy, mask=[1, 1, 1, 0, 0, 0]))
-    opt1.run(fmax=c.fmax_alloy_bulk)
+    # opt1.run(fmax=c.fmax_alloy_bulk)
 
     # Run NPT simulation for only the alloy
     dyn_npt_alloy = NPTBerendsen(
@@ -258,7 +268,7 @@ def prepare_alloy(
         trajectory_npt_alloy.write, interval=c.trajectory_write_interval
     )
     dyn_npt_alloy.attach(logger_npt_alloy, interval=c.trajectory_log_interval)
-    dyn_npt_alloy.run(steps=c.npt_num_steps_for_alloy)
+    # dyn_npt_alloy.run(steps=c.npt_num_steps_for_alloy)
     write("ALLOY.xyz", alloy)
 
     return alloy
@@ -719,7 +729,7 @@ def nvt_simulation(
 
 if __name__ == "__main__":
     # Set the rng seed
-    set_seed(42)
+    _set_seed(42)
     # Load the simulation config
     config = SimulationConfig()
     # Prepare the metal alloy
