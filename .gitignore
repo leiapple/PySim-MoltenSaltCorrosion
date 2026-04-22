@@ -232,3 +232,4 @@ stdout_*
 stderr_*
 *.traj
 figs/
+.DS_Store
