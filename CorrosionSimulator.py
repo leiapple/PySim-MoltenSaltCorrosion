@@ -207,7 +207,7 @@ def prepare_alloy(
     opt = BFGS(
         StrainFilter(FCC_bulk, mask=[1, 1, 1, 0, 0, 0])
     )  # Diagonal strain optimization only
-    # opt.run(fmax=c.fmax_fe_bulk)
+    opt.run(fmax=c.fmax_fe_bulk)
     cell = FCC_bulk.get_cell()
     a0 = (cell[0][0] + cell[1][1] + cell[2][2]) / 3  # average over all three
 
@@ -238,7 +238,7 @@ def prepare_alloy(
     # Optimize the bulk for strain / forces
     alloy.calc = c.calculator
     opt1 = LBFGS(StrainFilter(alloy, mask=[1, 1, 1, 0, 0, 0]))
-    # opt1.run(fmax=c.fmax_alloy_bulk)
+    opt1.run(fmax=c.fmax_alloy_bulk)
 
     # Run NPT simulation for only the alloy
     dyn_npt_alloy = NPTBerendsen(
@@ -268,7 +268,7 @@ def prepare_alloy(
         trajectory_npt_alloy.write, interval=c.trajectory_write_interval
     )
     dyn_npt_alloy.attach(logger_npt_alloy, interval=c.trajectory_log_interval)
-    # dyn_npt_alloy.run(steps=c.npt_num_steps_for_alloy)
+    dyn_npt_alloy.run(steps=c.npt_num_steps_for_alloy)
     write("ALLOY.xyz", alloy)
 
     return alloy
