@@ -8,7 +8,8 @@ from CorrosionSimulator import *
 config = SimulationConfig(
     temperature_K=1400,  # K
     initial_density=1.38,  # g/cm^3
-    npt_num_steps=1000000,  # number of MD steps
+    npt_num_steps=1000,  # number of npt MD steps of the combined system
+    nvt_num_steps=500000,  # number of nvt MD steps of the combined system
     salt_cations=[["Na"], [108]],  #
     salt_anions=[["Cl"], [108]],  # salt composition
     impurity="none",
