@@ -1,6 +1,8 @@
-from run_simulation import *
+import sys
 
-set_seed(42)
+sys.path.append("..")
+
+from CorrosionSimulator import *
 
 # The other parameters are set to the default values in the SimulationConfig dataclass
 config = SimulationConfig(
@@ -8,10 +10,12 @@ config = SimulationConfig(
     alloy_surface=fcc100,
     temperature_K=1400,  # K
     initial_density=1.86,  # g/cm^3
-    npt_num_steps=1000000,  # number of MD steps
+    npt_num_steps=1000,  # number of npt MD steps of the combined system
+    nvt_num_steps=500000,  # number of nvt MD steps of the combined system
     salt_cations=[["Na"], [216]],  #
     salt_anions=[["F"], [216]],  # salt composition
     impurity="none",
+    seed=41,
 )
 
 alloy = prepare_alloy(c=config)
