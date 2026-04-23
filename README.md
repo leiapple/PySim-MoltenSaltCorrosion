@@ -44,7 +44,8 @@ set_seed(42)
 config = SimulationConfig(
     temperature_K=1400,  # K
     initial_density=1.5,  # g/cm^3
-    npt_num_steps=1000000,  # number of MD steps
+    nvt_num_steps=1000,  # number of equilibration MD steps
+    npt_num_steps=1000000,  # number of production MD steps
 )
 
 alloy = prepare_alloy(c=config)
