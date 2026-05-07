@@ -233,3 +233,11 @@ stderr_*
 *.traj
 figs/
 .DS_Store
+test_*
+stored_values/
+*.gif
+*.png
+*.mp4
+*.pdf
+Figure_*/
+test_*

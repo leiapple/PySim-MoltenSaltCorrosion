@@ -20,7 +20,7 @@ This folder contains three Python scripts for post-processing atomistic trajecto
 Install the required packages in your environment:
 
 ```bash
-pip install numpy ovito tqdm
+pip install moltensaltcalc myplots numpy ovito tqdm
 ```
 
 ### Input data
@@ -298,6 +298,100 @@ label = data["label"]
 
 - Only every 10th frame is processed.
 - The reported value is the percent change derived from the constructed surface area and the simulation cell cross-sectional area in the `xy` plane.
+- `tqdm` is used for the progress bar.
+
+---
+
+## 4. `Get_coordination_env.py`
+
+### Purpose
+
+This script calculates the **coordination environment** of selected elements over time using OVITO's `CutoffNeighborFinder`.
+
+### What it does
+
+- loads one or more trajectories
+- extracts the melt region, which is provided by minimum and maximum z-coordinates
+- extracts the selected element and it's surrounding neighbors
+- wraps periodic images
+- obtains the neighbors of the individual Cr atoms in the melt within a certain cutoff distance
+- gets the number of oxygen atoms, the number of fluorine atoms and the number of other elements in the coordination environment
+- saves the data to one `.json` file per trajectory
+
+### Command-line usage
+
+TODO
+
+```bash
+python Get_Cr_coordination.py TRAJ1 [TRAJ2 ...] [--
+```
+
+### Arguments
+
+TODO
+
+- `files` : one or more input trajectory files
+- `-e`, `--element` : Atomic symbol of the element for which the coordination environment is computed, default `Cr`
+- `-n`, `--neighbors` : Atomic symbol of the elements to compute separately for the coordination sphere, default `O F`
+- `-c`, `--cutoff` : Cutoff distance for including other atoms in the coordination sphere in Angstroms, default `2.0`
+- `--min-z` : Minimum z-coordinate for the melt region in Angstroms, default `28`
+- `--max-z` : Maximum z-coordinate for the melt region in Angstroms, default `50`
+- `--every-nth` : Every nth frame is evaluated, default `1`
+- `-o`, `--output` : Output filename(s) the json file(s), default: [] => generated from input filename
+
+### Examples
+
+Single trajectory, default parameters:
+
+```bash
+python Get_coordination_env.py data/traj.nvt
+```
+
+Custom elements:
+
+```bash
+python Get_coordination_env.py data/traj.nvt -e Fe -n F O
+```
+
+Different melt region and multiple trajectories with different output names:
+
+```bash
+python Get_coordination_env.py \
+  data/traj1.nvt data/traj2.nvt \
+  --min-z 10 --max-z 25 \
+  -o data/env1.json data/env2.json
+```
+
+### Output
+
+For each trajectory, the script saves:
+
+```text
+<input_filename>_coord.json
+```
+
+The `.json` file contains an array filled with arrays of dictionaries, one for each considered atom, containing its coordination environment in the form of n_<neighbor_symbol> for each neighbor and n_<others> where all additional elements inside the coordination sphere are counted. For example:
+
+```json
+[[], [{"n_O": 2, "n_F": 2, "n_Other": 0}], [{"n_O": 2, "n_F": 2, "n_Other": 0}, {"n_O": 1, "n_F": 2, "n_Other": 1}]]
+```
+
+Example loading:
+
+```python
+import json
+
+# Load the data into a dictionary
+coord_data_dict = {}
+for O2_content in O2_CONTENTS:
+    coord_data_dict[O2_content] = {}
+    for seed in RNG_SEEDS:
+        with open(f"stored_values/FeCr_NaF_Cr_coordination_{O2_content}_O2_{seed}.json", "r") as f:
+            coord_data_dict[O2_content][seed] = json.load(f)
+```
+
+### Notes
+
 - `tqdm` is used for the progress bar.
 
 ---
