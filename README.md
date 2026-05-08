@@ -28,15 +28,15 @@ pip install -r requirements.txt
 ### 1. Default full simulation
 
 ```bash
-python run_simulation.py
+python CorrosionSimulator.py
 ```
 
 ### 2. Custom simulation (example)
 
-Should be run from the folder containing the `run_simulation.py` file.
+Should be run from the folder containing the `CorrosionSimulator.py` file.
 
 ```python
-from run_simulation import *
+from CorrosionSimulator import *
 
 set_seed(42)
 
@@ -62,7 +62,7 @@ system = nvt_simulation(system, config)
 ### 3. Salt-only simulation (NPT)
 
 ```python
-from run_simulation import *
+from CorrosionSimulator import *
 
 set_seed(42)
 
