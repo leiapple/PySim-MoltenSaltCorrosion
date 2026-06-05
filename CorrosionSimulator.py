@@ -64,13 +64,13 @@ class SimulationConfig:
 
     # Cation/anion symbols and respective number of atoms
     salt_cations: List = field(default_factory=lambda: [["Na"], [216]])
-    salt_anions: List = field(default_factory=lambda: [["Cl"], [216]])
+    salt_anions: List = field(default_factory=lambda: [["F"], [216]])
 
     impurity: str = "oxygen"  # "oxygen", "water", "none"
     n_O2: int = field(default=40)  # Only applies if impurity is "oxygen"
     # Number of O atoms add to the top layer to prevent O2 in the salt adsorption on the top of simulation cell
     n_O_top: int = field(default=50)  # Only applies if impurity is "oxygen"
-    n_H2O: int = field(default=40)  # Only applies if impurity is "water"
+    n_H2O: int = field(default=50)  # Only applies if impurity is "water"
     # Height of the oxygen layer on top of the simulation cell
     oxygen_top_height: float = 2.5  # Å, only applies if impurity is "oxygen"
 
@@ -78,7 +78,7 @@ class SimulationConfig:
         2  # Å, initial lattice constant for the rocksalt crystal structure
     )
     # 1.86 g/cm³ for NaF, or 1.38 g/cm³ for NaCl at 1400 K
-    initial_density: float = 1.38  # g/cm³
+    initial_density: float = 1.86  # g/cm³
     # Whether to construct the molten salt by random placement or from an initial rocksalt crystal structure
     initial_salt_str: str = "rocksalt"  # "rocksalt" or "random"
     # Whether to remove positions from the rocksalt structure randomly or just cut off higher indices
