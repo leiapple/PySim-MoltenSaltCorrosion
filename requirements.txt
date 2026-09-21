@@ -83,6 +83,7 @@ tabulate==0.9.0
 tensorboard==2.19.0
 tensorboard-data-server==0.7.2
 torch==2.6.0
+torch-dftd==0.5.3
 torchtnt==0.2.4
 tqdm==4.67.1
 typing-inspect==0.9.0
@@ -91,4 +92,4 @@ tzdata==2025.2
 uncertainties==3.2.3
 urllib3==2.4.0
 wandb==0.20.1
-Werkzeug==3.1.3
+werkzeug==3.1.3

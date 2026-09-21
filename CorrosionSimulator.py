@@ -7,6 +7,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 from ase import Atom, Atoms, units
 from ase.build import bulk, fcc100, fcc110, fcc111, molecule
+from ase.calculators.calculator import Calculator
 from ase.constraints import FixAtoms
 from ase.data import atomic_masses, atomic_numbers
 from ase.filters import StrainFilter
@@ -19,6 +20,7 @@ from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 from ase.optimize import BFGS, LBFGS
 from fairchem.core import FAIRChemCalculator, pretrained_mlip
 from scipy.spatial.distance import cdist
+from torch_dftd.torch_dftd3_calculator import TorchDFTD3Calculator
 
 
 # ============================================================
@@ -136,7 +138,8 @@ class SimulationConfig:
     model_name: str = "uma-s-1p1"  # "uma-s-1p1" or "uma-s-1p2"
     task_name: str = "oc20"  # "oc20", "oc22" or "oc25"
     device: str = "cuda"  # "cuda" or "cpu"
-    _calculator: FAIRChemCalculator = field(default=None, init=False, repr=False)
+    dispersion: bool = False
+    _calculator: Calculator | None = field(default=None, init=False, repr=False)
 
     # ============================================================
     # Post-init logic (derived parameters)
@@ -169,7 +172,7 @@ class SimulationConfig:
             self.timestep_fs = 1.0  # fs
 
     @property
-    def calculator(self) -> FAIRChemCalculator:
+    def calculator(self) -> Calculator:
         """Lazy-load the calculator if not already initialized."""
         if self._calculator is None:
             # Get the rng seed before initializing the calculator
@@ -177,7 +180,10 @@ class SimulationConfig:
             predictor = pretrained_mlip.get_predict_unit(
                 self.model_name, device=self.device
             )
-            self._calculator = FAIRChemCalculator(predictor, task_name=self.task_name)
+            calc = FAIRChemCalculator(predictor, task_name=self.task_name)
+            if self.dispersion:
+                calc = TorchDFTD3Calculator(dft=calc, device=self.device)
+            self._calculator = calc
             # Make sure the seed doesn't get reset by the calculator
             _set_seed(rng_seed)
         return self._calculator
