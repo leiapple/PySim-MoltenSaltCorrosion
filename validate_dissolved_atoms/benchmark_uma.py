@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+import numpy as np
 
 from ase.io import write
 from species import SPECIES
@@ -9,6 +10,7 @@ BASE_DIR = Path("calculations")
 
 UMA_DEVICE = "cuda"
 UMA_MODEL = "1p1"
+UMA_MODEL_SIZE = "small"
 UMA_TASK = "oc20"
 
 
@@ -17,6 +19,7 @@ def main(species_idx: list[int] | None, species_names: list[str] | None):
     uma_calc = make_uma_calculator(
         device=UMA_DEVICE,
         model_version=UMA_MODEL,
+        model_size=UMA_MODEL_SIZE,
         task=UMA_TASK,
     )
 
@@ -49,8 +52,12 @@ def main(species_idx: list[int] | None, species_names: list[str] | None):
             atoms,
             calculator=uma_calc,
             output_dir=species_dir,
-            fmax=1e-4,
+            fmax=1e-2,
+            relax_cell=name in ["Cr_bcc", "Fe_bcc"],
         )
+
+        if uma_atoms.calc is not None:
+            print(f"UMA relaxed structure for species {name} with E={uma_atoms.get_potential_energy():.3f} eV")
 
         # Save the relaxed structure
         write(
@@ -80,6 +87,13 @@ if __name__ == "__main__":
         help="Names of species to benchmark. If not provided, all species are benchmarked.",
         default=None,
     )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        help="RNG seed.",
+        default=42,
+    )
     args = parser.parse_args()
 
+    np.random.seed(args.seed)
     main(species_idx=args.species_idx, species_names=args.species)

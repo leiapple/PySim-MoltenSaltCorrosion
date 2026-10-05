@@ -15,6 +15,7 @@ def main(
     species_names: list[str] | None,
     kernel_truncation: bool,
     overwrite: bool,
+    include_spin: bool,
 ):
 
     for idx, (name, species) in enumerate(SPECIES.items()):
@@ -32,7 +33,7 @@ def main(
         print(f"Species: {name} (idx {idx})")
         print("=" * 70)
 
-        species_dir = BASE_DIR / name / "vasp"
+        species_dir = BASE_DIR / name / f"vasp{'_nospin' if not include_spin else ''}"
 
         atoms = species.atoms.copy()
 
@@ -46,22 +47,26 @@ def main(
 
         print("Running VASP...")
 
-        vasp_atoms, vasp_energy = relax_with_vasp(
-            atoms,
-            output_dir=species_dir,
-            vasp_params=VaspParams(command=vasp_command, ncore=ncore),
-            charge=species.charge,
-            magmoms=species.magmoms,
-            kernel_truncation=kernel_truncation,
-            overwrite=overwrite,
-        )
+        try:
+            vasp_atoms, vasp_energy = relax_with_vasp(
+                atoms,
+                output_dir=species_dir,
+                vasp_params=VaspParams(command=vasp_command, ncore=ncore, ispin=2 if include_spin else 1),
+                charge=species.charge,
+                magmoms=species.magmoms if include_spin else None,
+                kernel_truncation=kernel_truncation,
+                overwrite=overwrite,
+                relax_cell=name in ["Cr_bcc", "Fe_bcc"]
+            )
 
-        write(
-            species_dir / "relaxed.xyz",
-            vasp_atoms,
-        )
+            write(
+                species_dir / "relaxed.xyz",
+                vasp_atoms,
+            )
 
-        print(f"VASP relaxed energy: " f"{vasp_energy:.8f} eV")
+            print(f"VASP relaxed energy: " f"{vasp_energy:.8f} eV")
+        except Exception as e:
+            print(f"ERROR while relaxing species {name} with VASP: {e}. Continuing with the next...")
 
     print()
     print("=" * 70)
@@ -81,6 +86,7 @@ if __name__ == "__main__":
     parser.add_argument("--species", nargs="*", type=str, default=None, help="Names of the species to be considered (e.g. 'CrF2 CrO3'). If not provided all will be used.")
     parser.add_argument("--kernel_truncation", action="store_true", help="Enable kernel truncation in VASP calculations.")
     parser.add_argument("--overwrite", action="store_true", help="When provided, existing VASP outputs will be overwritten without asking for confirmation.")
+    parser.add_argument("--exclude_spin", action="store_true", help="Exclude spin polarization in VASP calculations.")
     args = parser.parse_args()
 
     main(
@@ -90,4 +96,5 @@ if __name__ == "__main__":
         args.species,
         args.kernel_truncation,
         args.overwrite,
+        not args.exclude_spin,
     )

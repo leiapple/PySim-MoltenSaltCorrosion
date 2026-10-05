@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.25.0"
+__generated_with = "0.25.1"
 app = marimo.App(width="medium")
 
 
@@ -68,7 +68,7 @@ def _(Path, np, pd):
 
 @app.cell
 def _(E_form_df, bond_angles_df, bond_lengths_df, p, pd):
-    fig, ax = p.new(2, 2, figsize=(8, 8))
+    fig, ax = p.new(1, 3, figsize=(9, 3))
 
     p.plot_parity(ax[0], E_form_df["vasp_formation_energy_eV"], E_form_df["uma_formation_energy_eV"], add_rmse=True, rmse_unit=" eV", rmse_loc=(0.05, 0.9), rmse_fontsize=10)
     p.label(ax[0], f"VASP {p.bm('E')}$_{{formation}}$ (eV)", f"UMA {p.bm('E')}$_{{formation}}$ (eV)", "Formation Energy")
@@ -79,6 +79,7 @@ def _(E_form_df, bond_angles_df, bond_lengths_df, p, pd):
     p.annotate_subplots(ax, add_before="(", add_after=")")
 
     # Annotate a chosen set of formation energies
+    E_form_df.sort_values("vasp_formation_energy_eV", inplace=True)
     selected = pd.concat([
         E_form_df.iloc[0:3],
         E_form_df.iloc[10:],
@@ -86,7 +87,7 @@ def _(E_form_df, bond_angles_df, bond_lengths_df, p, pd):
     for species, E_form_vasp, E_form_uma in selected[
         ["species", "vasp_formation_energy_eV", "uma_formation_energy_eV"]
     ].itertuples(index=False):
-    
+
         # Convert chemical formula to LaTeX/mathtext
         label = (
             species

@@ -241,3 +241,8 @@ stored_values/
 *.pdf
 Figure_*/
 test_*
+validate_dissolved_atoms/CrO*
+validate_dissolved_atoms/Fe*
+validate_dissolved_atoms/calculations
+*.out
+.vscode

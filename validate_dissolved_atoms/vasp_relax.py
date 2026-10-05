@@ -24,7 +24,7 @@ class VaspParams:
     command: str = "vasp_gam"
 
     # Electronic structure
-    xc: str = "PBE"
+    xc: str = "RPBE"
     encut: int = 500
     ediff: float = 1e-6
     ediffg: float = -1e-2
@@ -53,7 +53,7 @@ class VaspParams:
 
     # Initialization
     icharg: int = 2
-    nelm: int = 400
+    nelm: int = 1000
 
     # Output
     txt: str = "vasp.out"
@@ -115,6 +115,7 @@ def relax_with_vasp(
     box_sidelength_A: float = 20.0,
     kernel_truncation: bool = True,
     overwrite: bool = False,
+    relax_cell: bool = False,
 ) -> tuple[Atoms, float]:
     """Relax the given atoms using VASP and return the relaxed structure and its energy. Files are saved to the specified output directory."""
 
@@ -135,8 +136,16 @@ def relax_with_vasp(
 
     # Ensure the atoms are periodic and centered with vacuum
     atoms.set_pbc(True)
-    atoms.set_cell([box_sidelength_A, box_sidelength_A, box_sidelength_A])
-    atoms.center()
+    if relax_cell:
+        if kernel_truncation:
+            print("WARNING: Cannot use kernel truncation when relaxing the cell. Disabling kernel truncation.")
+            kernel_truncation = False
+        if calc_kwargs.get("isif", 2) != 3:
+            print("WARNING: ISIF is not set to 3 for cell relaxation. Overriding ISIF to 3.")
+            calc_kwargs["isif"] = 3
+    else:
+        atoms.set_cell([box_sidelength_A, box_sidelength_A, box_sidelength_A])
+        atoms.center()
 
     # For neutral systems, VASP automatically determines the number of valence electrons from the selected POTCAR files, but for charged systems we need to compute the number of electrons VASP will see
     if charge != 0:

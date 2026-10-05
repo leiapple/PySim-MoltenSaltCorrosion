@@ -4,11 +4,12 @@ import moltensaltcalc as msc
 from ase import Atoms
 from ase.calculators.calculator import Calculator
 from ase.optimize import LBFGS
-
+from ase.filters import FrechetCellFilter
 
 def make_uma_calculator(
     device: str = "cuda",
     model_version: str = "1p1",
+    model_size: str = "small",
     task: str = "oc20",
 ) -> Calculator:
     sim = msc.MoltenSaltSimulator(
@@ -16,6 +17,7 @@ def make_uma_calculator(
         model_parameters={
             "model_task": task,
             "model_version": model_version,
+            "model_size": model_size,
             "InferenceSettings": "default",
         },
         device=device,
@@ -30,6 +32,7 @@ def relax_with_uma(
     fmax: float = 1e-4,
     max_steps: int = 10000,
     box_sidelength_A: float = 20.0,
+    relax_cell: bool = False,
 ) -> Atoms:
     """Relax an ASE Atoms object using UMA."""
 
@@ -42,12 +45,16 @@ def relax_with_uma(
 
     atoms = atoms.copy()
 
-    # Ensure the atoms are periodic and centered with vacuum
     atoms.set_pbc(True)
-    atoms.set_cell([box_sidelength_A, box_sidelength_A, box_sidelength_A])
-    atoms.center()
-
     atoms.calc = calculator
+
+    if relax_cell:
+        # Apply the Frechet cell filter to allow cell relaxation
+        atoms = FrechetCellFilter(atoms)
+    else:
+        # Otherwise place the atoms in a box centered with vacuum
+        atoms.set_cell([box_sidelength_A, box_sidelength_A, box_sidelength_A])
+        atoms.center()
 
     trajectory = output_dir / "relax.traj"
     logfile = output_dir / "relax.log"
@@ -61,5 +68,9 @@ def relax_with_uma(
         fmax=fmax,
         steps=max_steps,
     )
+
+    # If an ASE Filter was returned, unpack the underlying Atoms object
+    if hasattr(atoms, "atoms"):
+        atoms = atoms.atoms
 
     return atoms

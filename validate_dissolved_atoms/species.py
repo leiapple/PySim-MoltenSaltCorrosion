@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from ase import Atoms
+from ase.build import bulk
 
 # ============================================================
 # Species definitions for compounds to be relaxed
@@ -179,40 +180,40 @@ def feof2():
     )
 
 
-def o():
+def o2():
     return Atoms(
-        "O",
+        "O2",
         positions=[
-            (0.0, 0.0, 0.0)
+            (0.0, 0.0, 0.0),
+            (1.21, 0.0, 0.0),
         ]
     )
 
 
-def f():
+def f2():
     return Atoms(
-        "F",
+        "F2",
         positions=[
-            (0.0, 0.0, 0.0)
+            (0.0, 0.0, 0.0),
+            (1.40, 0.0, 0.0),
         ]
     )
 
 
-def fe():
-    return Atoms(
+def fe_bcc():
+    return bulk(
         "Fe",
-        positions=[
-            (0.0, 0.0, 0.0),
-        ],
-    )
+        crystalstructure="bcc",
+        a=2.87  # A
+    ).repeat((2, 2, 2))
 
 
-def cr():
-    return Atoms(
+def cr_bcc():
+    return bulk(
         "Cr",
-        positions=[
-            (0.0, 0.0, 0.0),
-        ],
-    )
+        crystalstructure="bcc",
+        a=2.88,   # A
+    ).repeat((2, 2, 2))
 
 
 # ============================================================
@@ -303,30 +304,30 @@ SPECIES = {
         multiplicity=5,
         magmoms=[4.0, 0.0, 0.0, 0.0],  # d4
     ),
-    # Atoms (only in VASP)
-    "O": Species(
-        name="O",
-        atoms=o(),
+    # Reference energies for formation energy
+    "O2": Species(
+        name="O2",
+        atoms=o2(),
         multiplicity=3,
-        magmoms=[2.0],  # p4
+        magmoms=[2.0, 0.0],  # p4, triplet
     ),
-    "F": Species(
-        name="F",
-        atoms=f(),
-        multiplicity=2,
-        magmoms=[1.0],  # p5
+    "F2": Species(
+        name="F2",
+        atoms=f2(),
+        multiplicity=1,
+        magmoms=[0.0, 0.0],  # p6
     ),
-    "Fe": Species(
-        name="Fe",
-        atoms=fe(),
-        multiplicity=5,
-        magmoms=[4.0],  # d6
-    ),
-    "Cr": Species(
-        name="Cr",
-        atoms=cr(),
+    "Cr_bcc": Species(
+        name="Cr_bcc",
+        atoms=cr_bcc(),
         multiplicity=7,
-        magmoms=[5.0],  # d5
+        magmoms=8*[5.0],  # d5
+    ),
+    "Fe_bcc": Species(
+        name="Fe_bcc",
+        atoms=fe_bcc(),
+        multiplicity=5,
+        magmoms=8*[4.0],  # d6
     ),
 }
 

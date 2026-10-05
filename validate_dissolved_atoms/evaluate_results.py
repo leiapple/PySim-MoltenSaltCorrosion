@@ -13,20 +13,20 @@ from ase.io import read
 CALCULATIONS_DIR = Path(__file__).parent / "calculations"
 OUTPUT_DIR = CALCULATIONS_DIR / "comparison"
 
-# From relaxing the single element with VASP
+# From relaxing the most stable single-element structures with VASP (O2, F2, Cr (BCC), Fe (BCC))
 VASP_ATOM_ENERGIES: dict[str, float] = {
-    "Cr": -5.43554838,  # eV
-    "Fe": -3.37674862,
-    "F": -0.43733750,
-    "O":  -1.54647199,
+    "Cr": -64.97008940/8,  # eV
+    "Fe": -53.34156877/8,
+    "F": -3.31298228/2,
+    "O":  -9.56871370/2,
 }
 
-# From https://github.com/facebookresearch/fairchem/blob/main/configs/uma/training_release/element_refs/iso_atom_elem_refs.yaml
+# From relaxing the most stable single-element structures with VASP (O2, F2, Cr (BCC), Fe (BCC))
 UMA_ATOM_ENERGIES: dict[str, float] = {
-    "Cr": -1.0934019,  # eV
-    "Fe": -1.23073475,
-    "F": -0.10298174,
-    "O": -0.10862579,
+    "Cr": -71.559/8,  # eV
+    "Fe": -57.581/8,
+    "F": 0.440/2,
+    "O": -8.472/2,
 }
 
 # A pair of atoms is considered bonded when:
