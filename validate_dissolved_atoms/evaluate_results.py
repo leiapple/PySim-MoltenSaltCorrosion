@@ -413,8 +413,8 @@ def main():
 
         species = species_dir.name
 
-        if species in VASP_ATOM_ENERGIES.keys():
-            print(f"  Skipping single atoms species {species}...")
+        if species in ["O2", "F2", "Cr_bcc", "Fe_bcc"]:
+            print(f"  Skipping reference {species}...")
             continue
 
         print(f"\nProcessing {species}...")
@@ -438,9 +438,14 @@ def main():
         angle_results.extend(angles)
 
         ediff = energy_result['formation_energy_difference_eV']
-        print(
-            f"Energy Difference: {ediff:+.6f} eV = {100*abs(ediff/energy_result['vasp_formation_energy_eV']):.3f}%"
-        )
+        if energy_result['vasp_formation_energy_eV'] != 0:
+            print(
+                f"Energy Difference: {ediff:+.6f} eV = {100*abs(ediff/energy_result['vasp_formation_energy_eV']):.3f}%"
+            )
+        else:
+            print(
+                f"Energy Difference: {ediff:+.6f} eV"
+            )
         print(
             f"Bond length differences (VASP vs UMA):"
         )

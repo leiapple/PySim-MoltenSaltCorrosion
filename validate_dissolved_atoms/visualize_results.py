@@ -46,7 +46,7 @@ def _(Atoms, Path, display, find_relaxed_structure, read, view):
         combined = vasp_atoms + uma_atoms
         display(view(combined, viewer="x3d"))
 
-    visualize_atoms("CrO4--")
+    visualize_atoms("CrO3")
     return
 
 
@@ -62,12 +62,12 @@ def _(Path, np, pd):
     E_form_df = pd.DataFrame(E_form.tolist())
     bond_lengths_df = pd.DataFrame(bond_lengths.tolist())
     bond_angles_df = pd.DataFrame(bond_angles.tolist())
-    E_form_df
+    bond_angles_df
     return E_form_df, bond_angles_df, bond_lengths_df
 
 
 @app.cell
-def _(E_form_df, bond_angles_df, bond_lengths_df, p, pd):
+def _(E_form_df, bond_angles_df, bond_lengths_df, np, p, pd):
     fig, ax = p.new(1, 3, figsize=(9, 3))
 
     p.plot_parity(ax[0], E_form_df["vasp_formation_energy_eV"], E_form_df["uma_formation_energy_eV"], add_rmse=True, rmse_unit=" eV", rmse_loc=(0.05, 0.9), rmse_fontsize=10)
@@ -82,7 +82,7 @@ def _(E_form_df, bond_angles_df, bond_lengths_df, p, pd):
     E_form_df.sort_values("vasp_formation_energy_eV", inplace=True)
     selected = pd.concat([
         E_form_df.iloc[0:3],
-        E_form_df.iloc[10:],
+        E_form_df.iloc[9:],
     ])
     for species, E_form_vasp, E_form_uma in selected[
         ["species", "vasp_formation_energy_eV", "uma_formation_energy_eV"]
@@ -99,11 +99,10 @@ def _(E_form_df, bond_angles_df, bond_lengths_df, p, pd):
             .replace("--", "$^{2-}$")
             .replace("F-", "F$^{-}$")
         )
-
         ax[0].annotate(
             label,
             xy=(E_form_vasp, E_form_uma),
-            xytext=(E_form_vasp - 2.5, E_form_uma + 0.5 if species != "FeO2" else E_form_uma + 2.5),
+            xytext=(E_form_vasp + 2.75, E_form_uma + 1.8 if species in ["FeO2", "CrO4--"] else E_form_uma - 3),
             fontsize=9,
             ha="right",
             va="bottom",
@@ -118,12 +117,55 @@ def _(E_form_df, bond_angles_df, bond_lengths_df, p, pd):
                 color="0.3",
                 lw=0.8,
                 shrinkA=2,
-                shrinkB=4,
-                connectionstyle="arc3,rad=-0.25",
+                shrinkB=3,
+                connectionstyle="arc3,rad=0.2",
             ),
             zorder=100
         )
-    p.save(fig, "final_plot.pdf")
+
+    # Annotate the largest bond angles differences
+    bond_angles_df["diff"] = np.abs(bond_angles_df["uma_angle_deg"]-bond_angles_df["vasp_angle_deg"])
+    bond_angles_df.sort_values("diff", inplace=True)
+    for species, angle_type, angle_vasp, angle_uma in bond_angles_df[
+        ["species", "angle_type", "vasp_angle_deg", "uma_angle_deg"]
+    ][-3:].itertuples(index=False):
+
+        # Convert chemical formula to LaTeX/mathtext
+        label = (
+            species
+            .replace("O3", "O$_3$")
+            .replace("O4", "O$_4$")
+            .replace("O2", "O$_2$")
+            .replace("F2", "F$_2$")
+            .replace("F3", "F$_3$")
+            .replace("--", "$^{2-}$")
+            .replace("F-", "F$^{-}$")
+        ) + ":" + angle_type.split("-")[1].replace("'", "").replace(", ", "-Fe-")
+        ax[2].annotate(
+            label,
+            xy=(angle_vasp, angle_uma),
+            xytext=(angle_vasp + 20, angle_uma + 10 if species in ["FeOF2"] else angle_uma - 15),
+            fontsize=9,
+            ha="right",
+            va="bottom",
+            bbox=dict(
+                boxstyle="round,pad=0.1",
+                facecolor=p.get_colors()[7],
+                edgecolor="0.7",
+                alpha=0.7,
+            ),
+            arrowprops=dict(
+                arrowstyle="->",
+                color="0.3",
+                lw=0.8,
+                shrinkA=2,
+                shrinkB=3,
+                connectionstyle="arc3,rad=0.2",
+            ),
+            zorder=100
+        )
+
+    p.save(fig, "fig02_b.pdf")
     p.show()
     return
 
